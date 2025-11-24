@@ -97,6 +97,24 @@ export const jobsApi = {
     );
     return response.data;
   },
+
+  // Get chart data - jobs over time
+  getJobsOverTime: async () => {
+    const response = await api.get<{ success: boolean; data: any[] }>('/jobs/chart/jobs-over-time');
+    return response.data.data;
+  },
+
+  // Get chart data - scraped per hour
+  getScrapedPerHour: async () => {
+    const response = await api.get<{ success: boolean; data: any[] }>('/jobs/chart/scraped-per-hour');
+    return response.data.data;
+  },
+
+  // Get chart data - uptime
+  getUptimeData: async () => {
+    const response = await api.get<{ success: boolean; data: any[] }>('/jobs/chart/uptime');
+    return response.data.data;
+  },
 };
 
 /**

@@ -11,13 +11,12 @@ import argparse
 from datetime import datetime
 import os
 
-# Add parent directory to path to import existing scrapers
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(parent_dir, 'Linkedin'))
-sys.path.insert(0, os.path.join(parent_dir, 'Stepstone'))
+# Add current directory to path to import mock scrapers
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
 
 
-def scrape_linkedin(keyword):
+def scrape_linkedin(keyword, max_jobs=100, headless=True):
     """Scrape LinkedIn for jobs matching keyword"""
     try:
         from linkedin_job_scraper import LinkedInJobScraper
@@ -26,7 +25,8 @@ def scrape_linkedin(keyword):
         url = f"https://www.linkedin.com/jobs/search/?f_TPR=r3600&keywords={keyword.replace(' ', '%20')}"
         
         scraper = LinkedInJobScraper(url)
-        scraper.scrape_jobs(fetch_full_details=False)
+        # pass headless and max_jobs through to the Selenium scraper
+        scraper.scrape_jobs(max_jobs=max_jobs, fetch_full_details=False, headless=headless)
         
         # Convert to standardized format
         jobs = []
@@ -51,23 +51,23 @@ def scrape_linkedin(keyword):
         return []
 
 
-def scrape_stepstone(keyword):
+def scrape_stepstone(keyword, max_jobs=100, headless=True):
     """Scrape Stepstone for jobs matching keyword"""
     try:
         from stepstone_scraper_selenium import StepstoneSeleniumScraper
         
-        scraper = StepstoneSeleniumScraper(headless=True)
+        scraper = StepstoneSeleniumScraper(headless=headless)
         scraper.setup_driver()
         
-        # Scrape with keyword (using existing scraper)
-        scraper.scrape_all_pages(max_pages=5)
+        # Scrape with keyword (pass keyword and respect max_jobs)
+        scraper.scrape_all_pages(max_pages=5, max_jobs=max_jobs, keyword=keyword)
         
         # Convert to standardized format
         jobs = []
         for job in scraper.jobs:
             jobs.append({
                 'title': job.get('title', ''),
-                'company': job.get('company', 'Unknown'),  # Company extraction issue noted
+                'company': job.get('company', 'Unknown'),
                 'location': job.get('location', ''),
                 'url': job.get('job_url', ''),
                 'description': '',
@@ -117,8 +117,11 @@ def main():
                        help='Scraper source')
     parser.add_argument('--max-jobs', type=int, default=100,
                        help='Maximum number of jobs to return')
+    parser.add_argument('--headless', choices=['true', 'false'], default='true',
+                       help='Run browser in headless mode (true/false)')
     
     args = parser.parse_args()
+    headless_bool = args.headless.lower() == 'true'
     
     all_jobs = []
     
@@ -126,13 +129,13 @@ def main():
         # Run scrapers based on source
         if args.source in ['linkedin', 'all']:
             print(json.dumps({'status': 'scraping', 'source': 'linkedin'}), file=sys.stderr)
-            linkedin_jobs = scrape_linkedin(args.keyword)
+            linkedin_jobs = scrape_linkedin(args.keyword, max_jobs=args.max_jobs, headless=headless_bool)
             all_jobs.extend(linkedin_jobs)
             print(json.dumps({'status': 'completed', 'source': 'linkedin', 'count': len(linkedin_jobs)}), file=sys.stderr)
         
         if args.source in ['stepstone', 'all']:
             print(json.dumps({'status': 'scraping', 'source': 'stepstone'}), file=sys.stderr)
-            stepstone_jobs = scrape_stepstone(args.keyword)
+            stepstone_jobs = scrape_stepstone(args.keyword, args.max_jobs, headless=headless_bool)
             all_jobs.extend(stepstone_jobs)
             print(json.dumps({'status': 'completed', 'source': 'stepstone', 'count': len(stepstone_jobs)}), file=sys.stderr)
         

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Container } from '../components/layout/Container';
 import { Card } from '../components/ui/Card';
 import { JobFilters, type FilterState } from '../components/jobs/JobFilters';
-import { useJobStats, useTriggerScraper } from '../hooks/useJobs';
+import { useJobStats, useTriggerScraper, useJobsOverTime, useScrapedPerHour, useUptimeData } from '../hooks/useJobs';
 import { useKeywords } from '../hooks/useKeywords';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -16,40 +16,10 @@ export function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useJobStats();
   const triggerScraper = useTriggerScraper();
 
-  // Generate mock data for jobs over 7 days
-  const [jobsOverTimeData, setJobsOverTimeData] = useState<any[]>([]);
-  const [uptimeData, setUptimeData] = useState<any[]>([]);
-  const [hourlyScrapedData, setHourlyScrapedData] = useState<any[]>([]);
-
-  useEffect(() => {
-    // Jobs over 7 days data
-    const days = ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'];
-    const jobsData = days.map((day, index) => ({
-      day,
-      jobs: Math.floor(Math.random() * 50) + 10 + (index * 5),
-      linkedin: Math.floor(Math.random() * 30) + 5,
-      stepstone: Math.floor(Math.random() * 25) + 5,
-    }));
-    setJobsOverTimeData(jobsData);
-
-    // Uptime over 24 hours (hourly)
-    const hours = Array.from({ length: 24 }, (_, i) => {
-      const hour = (new Date().getHours() - 23 + i + 24) % 24;
-      return `${hour.toString().padStart(2, '0')}:00`;
-    });
-    const uptimeDataGenerated = hours.map((hour) => ({
-      hour,
-      uptime: Math.random() > 0.05 ? 100 : Math.floor(Math.random() * 30) + 70, // Mostly 100%, occasionally dips
-    }));
-    setUptimeData(uptimeDataGenerated);
-
-    // Hourly scraped jobs over 24 hours
-    const scrapedData = hours.map((hour) => ({
-      hour,
-      scraped: Math.floor(Math.random() * 15) + 1,
-    }));
-    setHourlyScrapedData(scrapedData);
-  }, []);
+  // Use real chart data from database
+  const { data: jobsOverTimeData } = useJobsOverTime();
+  const { data: uptimeData } = useUptimeData();
+  const { data: hourlyScrapedData } = useScrapedPerHour();
 
   const handleTriggerScraper = async () => {
     const keyword = keywords?.general && keywords.general.length > 0 

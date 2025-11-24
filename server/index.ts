@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { checkDatabaseConnection } from './config/database.js';
+import { clearAllSchedules } from './services/scraper.service.js';
 import jobsRoutes from './routes/jobs.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
 
@@ -63,6 +64,9 @@ async function startServer() {
     console.log('\n' + '='.repeat(60));
     console.log('💎 Crystal Backend Server');
     console.log('='.repeat(60) + '\n');
+
+    // Clear any existing scraper schedules to prevent automatic startup
+    clearAllSchedules();
 
     // Check database connection
     console.log('📡 Checking database connection...');

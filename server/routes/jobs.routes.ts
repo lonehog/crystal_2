@@ -203,8 +203,8 @@ router.post('/scrape', async (req: Request, res: Response) => {
       }
     }
 
-    // Run scraper in background
-    scraperService.runScraperWorkflow(source, searchKeyword).catch((error) => {
+    // Run scraper in background (this is a manual trigger)
+    scraperService.runScraperWorkflow(source, searchKeyword, true).catch((error) => {
       console.error('Scraper workflow error:', error);
     });
 
@@ -270,6 +270,78 @@ router.get('/scraper/runs/:source?', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch scraper runs',
+    });
+  }
+});
+
+/**
+ * GET /api/jobs/chart/jobs-over-time
+ * Get jobs count over the last 7 days for charts
+ */
+router.get('/chart/jobs-over-time', async (req: Request, res: Response) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Get jobs created in the last 7 days, grouped by date and source
+    const jobsOverTime = await jobsService.getJobsOverTime(sevenDaysAgo);
+
+    res.json({
+      success: true,
+      data: jobsOverTime,
+    });
+  } catch (error) {
+    console.error('Error fetching jobs over time:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch jobs over time',
+    });
+  }
+});
+
+/**
+ * GET /api/jobs/chart/scraped-per-hour
+ * Get scraped jobs count per hour over the last 24 hours
+ */
+router.get('/chart/scraped-per-hour', async (req: Request, res: Response) => {
+  try {
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+    // Get scraper runs in the last 24 hours
+    const scrapedPerHour = await jobsService.getScrapedPerHour(twentyFourHoursAgo);
+
+    res.json({
+      success: true,
+      data: scrapedPerHour,
+    });
+  } catch (error) {
+    console.error('Error fetching scraped per hour:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch scraped per hour',
+    });
+  }
+});
+
+/**
+ * GET /api/jobs/chart/uptime
+ * Get application uptime data over the last 24 hours
+ */
+router.get('/chart/uptime', async (req: Request, res: Response) => {
+  try {
+    // This will be based on server health checks or we can generate simulated uptime data
+    const uptimeData = await jobsService.getUptimeData();
+
+    res.json({
+      success: true,
+      data: uptimeData,
+    });
+  } catch (error) {
+    console.error('Error fetching uptime data:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch uptime data',
     });
   }
 });

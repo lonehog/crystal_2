@@ -9,7 +9,54 @@ dotenv.config();
 
 const PYTHON_PATH = process.env.PYTHON_PATH || 'python3';
 const SCRAPER_PATH = process.env.SCRAPER_PATH || './scraper/main.py';
-const MIN_INTERVAL_HOURS = parseInt(process.env.MIN_SCRAPER_INTERVAL_HOURS || '1');
+const MIN_INTERVAL_HOURS = parseInt(process.env.MIN_SCRAPER_INTERVAL_HOURS || '2');
+
+// In-memory storage for active schedules (in production, use Redis or database)
+let activeSchedules: Map<string, NodeJS.Timeout> = new Map();
+
+/**
+ * Schedule scraper to run again after specified hours
+ */
+function scheduleNextRun(
+  source: 'linkedin' | 'stepstone' | 'all',
+  keyword: string,
+  hours: number = MIN_INTERVAL_HOURS
+): void {
+  const scheduleKey = `${source}-${keyword}`;
+  
+  // Clear any existing schedule for this key
+  const existingSchedule = activeSchedules.get(scheduleKey);
+  if (existingSchedule) {
+    clearTimeout(existingSchedule);
+  }
+
+  // Schedule next run
+  const timeout = setTimeout(async () => {
+    try {
+      console.log(`🔄 Running scheduled scraper: ${source} - ${keyword}`);
+      await runScraperWorkflow(source, keyword, false); // This is an automatic scheduled run
+      // Schedule the next run
+      scheduleNextRun(source, keyword, MIN_INTERVAL_HOURS);
+    } catch (error) {
+      console.error(`❌ Scheduled scraper failed for ${scheduleKey}:`, error);
+    }
+  }, hours * 60 * 60 * 1000); // Convert hours to milliseconds
+
+  activeSchedules.set(scheduleKey, timeout);
+  console.log(`⏰ Scheduled next ${source} scraper in ${hours} hours`);
+}
+
+/**
+ * Clear all active schedules (call this on server startup)
+ */
+export function clearAllSchedules(): void {
+  console.log('🧹 Clearing all active scraper schedules...');
+  for (const [key, timeout] of activeSchedules.entries()) {
+    clearTimeout(timeout);
+    console.log(`  - Cleared schedule: ${key}`);
+  }
+  activeSchedules.clear();
+}
 
 /**
  * Run Python scraper and capture JSON output
@@ -185,10 +232,12 @@ export async function upsertJobs(result: ScraperResult, source: string): Promise
 
 /**
  * Run scraper workflow: check timing, scrape, upsert
+ * @param isManualTrigger - if true, schedule next run after completion
  */
 export async function runScraperWorkflow(
   source: 'linkedin' | 'stepstone' | 'all',
-  keyword: string
+  keyword: string,
+  isManualTrigger: boolean = false
 ): Promise<{ success: boolean; message: string; stats?: any }> {
   // Check if we can run
   const sources = source === 'all' ? ['linkedin', 'stepstone'] : [source];
@@ -231,6 +280,14 @@ export async function runScraperWorkflow(
         newJobs: stats.newJobs,
       })
       .where(eq(scraperRuns.id, runRecord.id));
+
+    // Schedule the next run only if this was a manual trigger (2 hours from now)
+    if (isManualTrigger) {
+      scheduleNextRun(source, keyword);
+      console.log(`⏰ Scheduled next ${source} scraper in ${MIN_INTERVAL_HOURS} hours (manual trigger)`);
+    } else {
+      console.log(`⏰ Skipping scheduling - this was an automatic run`);
+    }
 
     return {
       success: true,

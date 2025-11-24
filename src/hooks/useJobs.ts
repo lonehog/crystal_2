@@ -80,3 +80,36 @@ export function useJobSearch(keyword: string, enabled = true) {
     staleTime: 30000,
   });
 }
+
+/**
+ * Hook for fetching jobs over time chart data
+ */
+export function useJobsOverTime() {
+  return useQuery<any[]>({
+    queryKey: ['chart-data', 'jobs-over-time'],
+    queryFn: jobsApi.getJobsOverTime,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+}
+
+/**
+ * Hook for fetching scraped jobs per hour chart data
+ */
+export function useScrapedPerHour() {
+  return useQuery<any[]>({
+    queryKey: ['chart-data', 'scraped-per-hour'],
+    queryFn: jobsApi.getScrapedPerHour,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+}
+
+/**
+ * Hook for fetching uptime chart data
+ */
+export function useUptimeData() {
+  return useQuery<any[]>({
+    queryKey: ['chart-data', 'uptime'],
+    queryFn: jobsApi.getUptimeData,
+    refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
+  });
+}
