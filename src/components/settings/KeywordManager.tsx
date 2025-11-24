@@ -85,7 +85,7 @@ export function KeywordManager({
             variant="primary"
             onClick={handleAddKeyword}
             disabled={addingKeyword || !newKeyword.trim()}
-            fullWidth
+            className="w-full"
           >
             {addingKeyword ? (
               <>
@@ -104,18 +104,10 @@ export function KeywordManager({
               </>
             )}
           </Button>
-        </div>
-
-        {/* Keywords List */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-gray-300">Active Keywords</h3>
-            <Badge variant="primary">{keywords.length}</Badge>
-          </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <svg className="animate-spin h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin h-8 w-8 text-cyan-400" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -136,7 +128,7 @@ export function KeywordManager({
                   className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors group"
                 >
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
                     <span className="text-white font-medium">{keyword}</span>
@@ -157,14 +149,14 @@ export function KeywordManager({
         </div>
 
         {/* Info Note */}
-        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+        <div className="bg-cyan-500/10 border border-cyan-500/25 rounded-lg p-4">
           <div className="flex gap-3">
-            <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div className="text-sm">
-              <p className="text-blue-300 font-medium mb-1">Tip</p>
-              <p className="text-blue-200/70">
+              <p className="text-cyan-300 font-medium mb-1">Tip</p>
+              <p className="text-cyan-200/70">
                 Keywords are used across all job sources. Be specific to get better results (e.g., "embedded systems engineer" instead of just "engineer").
               </p>
             </div>

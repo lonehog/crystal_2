@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import { db } from '../config/database.js';
 import { jobs, scraperRuns } from '../db/schema.js';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import type { ScraperResult, ScrapedJob } from '../types/job.types.js';
 import dotenv from 'dotenv';
 
@@ -88,7 +88,7 @@ export async function canRunScraper(source: string): Promise<{
         eq(scraperRuns.status, 'completed')
       )
     )
-    .orderBy(scraperRuns.completedAt)
+  .orderBy(desc(scraperRuns.completedAt))
     .limit(1);
 
   if (lastRun.length === 0 || !lastRun[0].completedAt) {
@@ -140,16 +140,20 @@ export async function upsertJobs(result: ScraperResult, source: string): Promise
 
       if (existing.length > 0) {
         // Update existing job
+        const nowIso = new Date().toISOString();
+
         await db
           .update(jobs)
           .set({
-            lastSeen: new Date(),
+            lastSeen: nowIso,
             isNewInLastHour: false,
-            updatedAt: new Date(),
+            updatedAt: nowIso,
           })
           .where(eq(jobs.url, scrapedJob.url));
       } else {
         // Insert new job
+        const nowIso = new Date().toISOString();
+
         await db.insert(jobs).values({
           title: scrapedJob.title,
           company: scrapedJob.company,
@@ -162,8 +166,10 @@ export async function upsertJobs(result: ScraperResult, source: string): Promise
           roleSlug: scrapedJob.role_slug || 'other',
           source: scrapedJob.source,
           isNewInLastHour: true,
-          firstSeen: new Date(),
-          lastSeen: new Date(),
+          firstSeen: nowIso,
+          lastSeen: nowIso,
+          createdAt: nowIso,
+          updatedAt: nowIso,
         });
         newJobsCount++;
       }
@@ -198,11 +204,15 @@ export async function runScraperWorkflow(
   }
 
   // Create scraper run record
-  const [runRecord] = await db.insert(scraperRuns).values({
-    source: source,
-    status: 'running',
-    startedAt: new Date(),
-  }).returning();
+  const startedAtIso = new Date().toISOString();
+  const [runRecord] = await db
+    .insert(scraperRuns)
+    .values({
+      source: source,
+      status: 'running',
+      startedAt: startedAtIso,
+    })
+    .returning();
 
   try {
     // Run Python scraper
@@ -216,7 +226,7 @@ export async function runScraperWorkflow(
       .update(scraperRuns)
       .set({
         status: 'completed',
-        completedAt: new Date(),
+        completedAt: new Date().toISOString(),
         jobsFound: stats.totalJobs,
         newJobs: stats.newJobs,
       })
@@ -235,7 +245,7 @@ export async function runScraperWorkflow(
       .update(scraperRuns)
       .set({
         status: 'failed',
-        completedAt: new Date(),
+        completedAt: new Date().toISOString(),
         error: errorMessage,
       })
       .where(eq(scraperRuns.id, runRecord.id));

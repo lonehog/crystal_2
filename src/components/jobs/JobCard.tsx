@@ -54,7 +54,7 @@ export function JobCard({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-lg font-semibold text-white hover:text-blue-400 transition-colors line-clamp-2"
+              className="text-lg font-semibold text-white hover:text-cyan-400 transition-colors line-clamp-2"
             >
               {title}
             </a>

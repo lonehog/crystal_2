@@ -15,10 +15,10 @@ export interface Job {
   roleSlug: string | null;
   source: string;
   isNewInLastHour: boolean;
-  firstSeen: Date;
-  lastSeen: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  firstSeen: string;
+  lastSeen: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ScraperRun {
@@ -27,18 +27,18 @@ export interface ScraperRun {
   status: 'running' | 'completed' | 'failed';
   jobsFound: number;
   newJobs: number;
-  startedAt: Date;
-  completedAt: Date | null;
+  startedAt: string;
+  completedAt: string | null;
   error: string | null;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface Setting {
   id: number;
   key: string;
   value: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // API Request/Response types

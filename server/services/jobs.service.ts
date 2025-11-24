@@ -1,7 +1,7 @@
 import { db } from '../config/database.js';
 import { jobs, scraperRuns, settings } from '../db/schema.js';
 import { eq, desc, and, sql } from 'drizzle-orm';
-import type { Job, JobStats, ScraperStatus } from '../types/job.types.js';
+import type { Job, JobStats, ScraperStatus, ScraperRun } from '../types/job.types.js';
 
 /**
  * Get all jobs with optional filtering
@@ -14,7 +14,7 @@ export async function getAllJobs(params: {
 }): Promise<Job[]> {
   const { source, roleSlug, isNew, limit = 1000 } = params;
 
-  let query = db.select().from(jobs);
+  let query = db.select().from(jobs).$dynamic();
 
   // Apply filters
   const conditions = [];
@@ -23,7 +23,7 @@ export async function getAllJobs(params: {
   if (isNew) conditions.push(eq(jobs.isNewInLastHour, true));
 
   if (conditions.length > 0) {
-    query = query.where(and(...conditions));
+  query = query.where(and(...conditions));
   }
 
   const result = await query
@@ -114,6 +114,19 @@ export async function getScraperStatus(): Promise<Record<string, ScraperStatus>>
       .limit(1);
 
     const lastRun = lastRuns[0] || null;
+    const normalizedLastRun: ScraperStatus['lastRun'] = lastRun
+      ? {
+          id: lastRun.id,
+          source: lastRun.source,
+          status: lastRun.status as ScraperRun['status'],
+          jobsFound: Number(lastRun.jobsFound ?? 0),
+          newJobs: Number(lastRun.newJobs ?? 0),
+          startedAt: lastRun.startedAt,
+          completedAt: lastRun.completedAt ?? null,
+          error: lastRun.error ?? null,
+          createdAt: lastRun.createdAt,
+        }
+      : null;
 
     // Calculate if can run
     let canRun = true;
@@ -133,7 +146,7 @@ export async function getScraperStatus(): Promise<Record<string, ScraperStatus>>
 
     status[source] = {
       source,
-      lastRun: lastRun as any,
+      lastRun: normalizedLastRun,
       canRun,
       minutesUntilNextRun: minutesUntilNext,
     };
@@ -146,7 +159,7 @@ export async function getScraperStatus(): Promise<Record<string, ScraperStatus>>
  * Get recent scraper runs
  */
 export async function getRecentScraperRuns(source?: string, limit = 10) {
-  let query = db.select().from(scraperRuns);
+  let query = db.select().from(scraperRuns).$dynamic();
 
   if (source) {
     query = query.where(eq(scraperRuns.source, source));

@@ -82,7 +82,7 @@ export function JobFilters({
               onClick={() => updateFilters({ source: source.value })}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 filters.source === source.value
-                  ? 'bg-blue-500 text-white'
+                  ? 'bg-cyan-500 text-white'
                   : 'bg-white/5 text-gray-400 hover:bg-white/10'
               }`}
             >
@@ -102,7 +102,7 @@ export function JobFilters({
           <button
             onClick={() => updateFilters({ showOnlyNew: !filters.showOnlyNew })}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              filters.showOnlyNew ? 'bg-blue-500' : 'bg-gray-700'
+              filters.showOnlyNew ? 'bg-cyan-500' : 'bg-gray-700'
             }`}
           >
             <span
@@ -121,7 +121,7 @@ export function JobFilters({
             <span className="text-sm font-medium text-gray-300">Active Filters</span>
             <button
               onClick={() => updateFilters({ source: 'all', showOnlyNew: false })}
-              className="text-xs text-blue-400 hover:text-blue-300"
+              className="text-xs text-cyan-400 hover:text-cyan-300"
             >
               Clear All
             </button>

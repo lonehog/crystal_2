@@ -53,7 +53,7 @@ export function LinkedInJobs() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0B1120]">
+      <div className="min-h-screen">
         <Container>
           <div className="py-16 flex flex-col items-center justify-center">
             <LoadingSpinner />
@@ -66,7 +66,7 @@ export function LinkedInJobs() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0B1120]">
+      <div className="min-h-screen">
         <Container>
           <div className="py-16">
             <div className="glass-card p-8 text-center">
@@ -85,7 +85,7 @@ export function LinkedInJobs() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B1120]">
+    <div className="min-h-screen">
       <Container>
         <div className="py-8 space-y-8">
           {/* Header */}

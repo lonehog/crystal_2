@@ -67,7 +67,7 @@ export function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B1120]">
+    <div className="min-h-screen">
       <Container>
         <div className="py-8 space-y-8">
           {/* Stats Cards */}
@@ -81,8 +81,8 @@ export function Dashboard() {
                       <p className="text-gray-400 text-sm font-medium">Total Jobs</p>
                       <p className="text-3xl font-bold text-white mt-1">{stats.totalJobs}</p>
                     </div>
-                    <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center">
-                      <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-12 h-12 bg-cyan-500/10 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                     </div>
@@ -160,7 +160,7 @@ export function Dashboard() {
                   <h2 className="text-xl font-semibold text-white">Jobs Found Over Last 7 Days</h2>
                   <div className="flex gap-4 text-sm">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
                       <span className="text-gray-400">Total Jobs</span>
                     </div>
                     <div className="flex items-center gap-2">

@@ -46,7 +46,7 @@ export function useTriggerScraper() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: { source: string; keyword: string }) => {
+    mutationFn: async (params: { source: 'linkedin' | 'stepstone' | 'all'; keyword: string }) => {
       return jobsApi.triggerScraper(params.source, params.keyword);
     },
     onSuccess: () => {

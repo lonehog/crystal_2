@@ -1,8 +1,10 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../../hooks/useTheme';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -19,12 +21,12 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Navigation Links */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <Link
               to="/"
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                 isActive('/')
-                  ? 'bg-blue-electric text-white'
+                  ? 'bg-cyan-500/80 text-white'
                   : 'text-gray-300 hover:bg-white/5 hover:text-white'
               }`}
             >
@@ -34,7 +36,7 @@ export const Navbar: React.FC = () => {
               to="/linkedin"
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                 isActive('/linkedin')
-                  ? 'bg-purple-600 text-white'
+                  ? 'bg-cyan-500/80 text-white'
                   : 'text-gray-300 hover:bg-white/5 hover:text-white'
               }`}
             >
@@ -47,7 +49,7 @@ export const Navbar: React.FC = () => {
               to="/stepstone"
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
                 isActive('/stepstone')
-                  ? 'bg-orange-600 text-white'
+                  ? 'bg-amber-500/80 text-white'
                   : 'text-gray-300 hover:bg-white/5 hover:text-white'
               }`}
             >
@@ -60,12 +62,29 @@ export const Navbar: React.FC = () => {
               to="/settings"
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                 isActive('/settings')
-                  ? 'bg-blue-electric text-white'
+                  ? 'bg-cyan-500/80 text-white'
                   : 'text-gray-300 hover:bg-white/5 hover:text-white'
               }`}
             >
               Settings
             </Link>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="theme-toggle ml-2"
+              aria-label="Toggle theme"
+              aria-pressed={isDarkMode}
+            >
+              {isDarkMode ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364 6.364l-1.414-1.414M7.05 7.05L5.636 5.636m12.728 0l-1.414 1.414M7.05 16.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
       </div>
